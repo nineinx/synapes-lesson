@@ -11,19 +11,21 @@ app = FastAPI(title="Sample FastAPI",
 model = joblib.load('c45_classifier.pkl')
 
 class Input(BaseModel):
-    pregnancies : float = Field(0, example=0) 
+    pregnancies : float = Field(0, example=1) 
     glocose: float = Field(0, example=0) 
     blood_pressure: float = Field(0, example=0) 
     skin_thickness: float = Field(0, example=0)
     insulin: float = Field(0)
     diabetes_ped_func: float = Field(0, example=0)
-    age: float = Field(..., example=0)
-    bmi: float = Field(..., example=0)
+    age: float = Field(..., example=30)
+    bmi: float = Field(..., example=13)
     
 @app.post("/prediction")
 def prediction(data: Input):
     data = dict(data)
-    result = {"status": "OK", "result": ""}
+    data_arr = np.array([v for (_,v)in data.items()]) 
+    result = model.predict(data_arr.reshape(1,-1))
+    result = {"status": "OK", "result": int(result)}
     return result
 
 
